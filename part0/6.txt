@@ -1,0 +1,9 @@
+note over browser:
+user writes something
+and clicks save button
+end note
+
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+browser->server: JSON [{ content: "Single page app", date: "2019-05-23" }, ...]
+server-->browser: HTTP 201
+
