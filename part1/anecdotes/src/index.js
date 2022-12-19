@@ -5,6 +5,7 @@ const App = ({ anecdotes }) => {
   const [selected, setSelected] = useState(0);
   //const points = Array(6).fill(0);
   const [points, setPoints] = useState([3, 6, 1, 2, 3, 4]);
+  const mostVoted = points.indexOf(Math.max(...points));
 
   return (
     <div>
@@ -31,7 +32,8 @@ const App = ({ anecdotes }) => {
       </button>
 
       <h2>Anecdote with most votes</h2>
-      <div>{points[indexOf(Math.max(points))]}</div>
+      <div>{anecdotes[mostVoted]}</div>
+      <div>Votes: {points[mostVoted]}</div>
     </div>
   );
 };
