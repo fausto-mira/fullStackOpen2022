@@ -11,14 +11,26 @@ export const Country = (props) => {
   const [windSpeed, setWindSpeed] = useState("");
   const [windDirection, setWindDirection] = useState("");
 
+  // useEffect(() => {
+  //   axios.get(url1).then((response) => {
+  //     console.log(response);
+  //     setWeatherIcon(response.data.weather[0].icon);
+  //     setTemperature(response.data.main.temp);
+  //     setWindSpeed(response.data.wind.speed);
+  //     setWindDirection(response.data.wind.deg);
+  //   });
+  // }, []);
+
   useEffect(() => {
     axios.get(url1).then((response) => {
-      console.log(response);
-      setWeatherIcon(response.data.weather[0].icon);
-      setTemperature(response.data.main.temp);
-      setWindSpeed(response.data.wind.speed);
-      setWindDirection(response.data.wind.deg);
+      const { data } = response;
+      console.log(data);
+      setWeatherIcon(data.weather[0].icon);
+      setTemperature(data.main.temp);
+      setWindSpeed(data.wind.speed);
+      setWindDirection(data.wind.deg);
     });
+    // eslint-disable-next-line
   }, []);
 
   const url2 = "http://openweathermap.org/img/wn/" + weatherIcon + "@2x.png";
