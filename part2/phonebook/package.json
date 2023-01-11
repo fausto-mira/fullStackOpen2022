@@ -38,6 +38,8 @@
     ]
   },
   "devDependencies": {
-    "json-server": "^0.17.1"
+    "install": "^0.13.0",
+    "json-server": "^0.17.1",
+    "npm": "^9.2.0"
   }
 }

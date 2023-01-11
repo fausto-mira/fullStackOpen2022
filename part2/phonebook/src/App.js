@@ -1,49 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import personService from "./services/numbers";
 
-const Persons = ({ persons }) => {
-  return (
-    <div>
-      {persons.map((person) => (
-        <p key={person.name}>
-          {person.name} {person.number}
-        </p>
-      ))}
-    </div>
-  );
-};
-
-const Filter = ({ search, handleSearchChange }) => {
-  return (
-    <div>
-      filter shown with <input value={search} onChange={handleSearchChange} />
-    </div>
-  );
-};
-
-const PersonForm = ({
-  addPerson,
-  newName,
-  handleNameChange,
-  newNumber,
-  handleNumberChange,
-}) => {
-  return (
-    <div>
-      <form onSubmit={addPerson}>
-        <div>
-          name: <input value={newName} onChange={handleNameChange} />
-        </div>
-        <div>
-          number: <input value={newNumber} onChange={handleNumberChange} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-    </div>
-  );
-};
+import Persons from "./components/Persons";
+import Filter from "./components/Filter";
+import PersonForm from "./components/PersonForm";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -51,51 +11,51 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [search, setSearch] = useState("");
 
-  const addPerson = (event) => {
-    event.preventDefault();
-    //console.log("button clicked", event.target);
-    const newPerson = { name: newName, number: newNumber };
-    const result = persons.find((person) => person.name === newPerson.name);
+  useEffect(() => {
+    personService.getAll().then((initialPersons) => {
+      setPersons(initialPersons);
+    });
+  }, []);
 
-    if (result === undefined) {
-      setPersons(persons.concat(newPerson));
-      setNewName("");
-      setNewNumber("");
-    } else {
-      alert(`${newPerson.name} is already added to phonebook`);
-      setNewName("");
-      setNewNumber("");
-    }
-  };
-
-  const handleNameChange = (event) => {
-    //console.log(event.target.value);
-    setNewName(event.target.value);
-  };
-
-  const handleNumberChange = (event) => {
-    //console.log(event.target.value);
-    setNewNumber(event.target.value);
-  };
-
-  const handleSearchChange = (event) => {
-    //console.log(event.target.value);
-    setSearch(event.target.value);
-  };
+  const handleNameChange = (event) => setNewName(event.target.value);
+  const handleNumberChange = (event) => setNewNumber(event.target.value);
+  const handleSearchChange = (event) => setSearch(event.target.value);
 
   const personsReduced = persons.filter((person) =>
     person.name.toLowerCase().includes(search)
   );
 
-  const hook = () => {
-    console.log("effect");
-    axios.get("http://localhost:3001/persons").then((response) => {
-      console.log("promise fulfilled");
-      setPersons(response.data);
-    });
-  };
+  const addPerson = (event) => {
+    event.preventDefault();
+    const newPerson = { name: newName, number: newNumber };
+    const result = persons.find((person) =>
+      person.name === newPerson.name ? person.id : undefined
+    );
 
-  useEffect(hook, []);
+    if (result === undefined) {
+      personService.create(newPerson).then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        setNewName("");
+        setNewNumber("");
+      });
+    } else {
+      const message = `${newPerson.name} is already added to phonebook, replace the old number with a new one?`;
+      console.log(result);
+      if (window.confirm(message)) {
+        personService
+          .update(result.id, newPerson)
+          .then((updatedPerson) =>
+            setPersons(
+              persons.map((person) =>
+                person.id !== result.id ? person : updatedPerson
+              )
+            )
+          );
+        setNewName("");
+        setNewNumber("");
+      }
+    }
+  };
 
   return (
     <div>
@@ -110,7 +70,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h3>Numbers</h3>
-      <Persons persons={personsReduced} search={search} />
+      <Persons persons={personsReduced} setPersons={setPersons} />
     </div>
   );
 };
