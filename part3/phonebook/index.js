@@ -1,7 +1,9 @@
-const { json } = require("express");
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 const app = express();
+
+//run app in dev mode with nodemon with $npm run dev
 
 let persons = [
   {
@@ -32,6 +34,7 @@ app.use(
     ":method :url :status :res[content-length] - :response-time ms :content"
   )
 );
+app.use(cors());
 
 app.get("/", (request, response) => {
   response.send("<h1>Hello world</h1>");
@@ -94,7 +97,7 @@ app.use((request, response) => {
   });
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
