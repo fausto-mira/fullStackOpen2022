@@ -61,7 +61,7 @@ app.get("/api/persons/:id", (request, response) => {
 
 app.delete("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
-  persons.filter((person) => person.id !== id);
+  persons = persons.filter((person) => person.id !== id);
 
   response.status(204).end();
 });
@@ -87,7 +87,7 @@ morgan.token("content", (request, response) => {
   let showPerson;
   person
     ? (showPerson = { name: person.name, number: person.number })
-    : (showPerson = { error: "bad request" });
+    : (showPerson = {});
   return JSON.stringify(showPerson);
 });
 
