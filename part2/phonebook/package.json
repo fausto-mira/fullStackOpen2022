@@ -19,6 +19,7 @@
     "eject": "react-scripts eject",
     "server": "json-server -p3001 --watch db.json"
   },
+  "proxy": "http://localhost:3001",
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -38,8 +39,8 @@
     ]
   },
   "devDependencies": {
-    "install": "^0.13.0",
-    "json-server": "^0.17.1",
-    "npm": "^9.2.0"
+    "install": "0.13.0",
+    "json-server": "0.17.1",
+    "npm": "9.2.0"
   }
 }
