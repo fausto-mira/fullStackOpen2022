@@ -10,11 +10,13 @@ const app = express();
 app.use(express.json());
 app.use(
   morgan(
-    ":method :url :status :res[content-length] - :response-time ms :content"
+    ":method :url :status :res[content-length] - :response-time ms - :content"
   )
 );
 app.use(cors());
-app.use(express.static("build"));
+
+//Only for production build
+//app.use(express.static("build"));
 
 app.get("/", (request, response) => {
   response.send("<h1>Hello world</h1>");
@@ -26,60 +28,60 @@ app.get("/api/persons", (request, response) => {
 
 app.get("/info", (request, response) => {
   Person.find({}).then((persons) => {
-    console.logs(response.json(persons));
+    const message = `<div>Phonebook has info for ${persons.length} people</div>`;
+    const date = `<div>${new Date()}</div>`;
+    response.send(message + date);
   });
-
-  const message = `<div>Phonebook has info for ${response.length} people</div>`;
-  const date = `<div>${new Date()}</div>`;
-  response.send(message + date);
 });
 
 app.get("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  Person.find({}).then((persons) => response.json(persons));
-  const person = persons.find((person) => person.id === id);
-
-  person
-    ? response.json(person)
-    : response.status(404).json({ error: "Not Found" });
+  Person.findById(request.params.id).then((person) => {
+    person
+      ? response.json(person)
+      : response.status(404).json({ error: "Not Found" });
+  });
 });
 
 app.delete("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const persons = Person.find({}).then((persons) => response.json(persons));
-  persons = persons.filter((person) => person.id !== id);
-
-  response.status(204).end();
+  Person.findById(request.params.id).then((person) => {
+    console.log(person);
+    Person.deleteOne(person);
+    response.status(204).end();
+  });
 });
 
 app.post("/api/persons", (request, response) => {
   const newPerson = request.body;
-  newPerson.id = Math.floor(Math.random() * 99999);
 
-  if (newPerson.name && newPerson.number) {
-    if (!persons.find((person) => person.name === newPerson.name)) {
-      // persons = persons.concat(newPerson);
-      // response.json(newPerson);
-      // console.log({ persons });
+  if (!newPerson.name || !newPerson.number)
+    return response.status(400).json({ error: "content missing" });
+
+  Person.find({})
+    .then((persons) => {
+      if (persons.find((person) => person.name === newPerson.name))
+        return Promise.reject();
+    })
+    .then(() => {
       const person = new Person({
         name: newPerson.name,
         number: newPerson.number,
       });
       person.save().then((savedPerson) => response.json(savedPerson));
-    }
-    return response.status(400).json({ error: "name must be unique" });
-  }
-  return response.status(400).json({ error: "name and/or number required" });
+    })
+    .catch((err) => {
+      console.log(err);
+      response.status(400).json({ error: "name must be unique" });
+    });
 });
 
 morgan.token("content", (request, response) => {
-  const id = Number(request.params.id);
-  const person = persons.find((person) => person.id === id);
-  let showPerson;
-  person
-    ? (showPerson = { name: person.name, number: person.number })
-    : (showPerson = {});
-  return JSON.stringify(showPerson);
+  Person.findById(request.params.id).then((person) => {
+    let showPerson;
+    person
+      ? (showPerson = { name: person.name, number: person.number })
+      : (showPerson = {});
+    return JSON.stringify(showPerson);
+  });
 });
 
 app.use((request, response) => {

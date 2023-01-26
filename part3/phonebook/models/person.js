@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+mongoose.set("strictQuery", true);
+
 const url = process.env.MONGODB_URI;
 
 console.log("connecting to", url);
@@ -26,4 +28,4 @@ personSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("Note", personSchema);
+module.exports = mongoose.model("Person", personSchema);
