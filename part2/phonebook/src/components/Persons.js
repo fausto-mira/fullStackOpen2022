@@ -3,13 +3,12 @@ import personService from "../services/numbers";
 const Persons = ({ persons, setPersons }) => {
   const deletePerson = (person) => {
     if (window.confirm(`delete ${person.name}?`)) {
-      personService
-        .del(person.id)
-        .then(() =>
-          personService
-            .getAll()
-            .then((modifiedPersons) => setPersons(modifiedPersons))
-        );
+      personService.del(person.id).then(() =>
+        personService
+          .getAll()
+          .then((modifiedPersons) => setPersons(modifiedPersons))
+          .then(alert("person deleted"))
+      );
     }
   };
   return (

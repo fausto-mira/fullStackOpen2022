@@ -43,10 +43,9 @@ app.get("/api/persons/:id", (request, response) => {
 });
 
 app.delete("/api/persons/:id", (request, response) => {
-  Person.findById(request.params.id).then((person) => {
-    console.log(person);
-    Person.deleteOne(person);
-    response.status(204).end();
+  Person.findByIdAndDelete(request.params.id, (err, person) => {
+    if (err) console.log(err);
+    else response.status(204).end();
   });
 });
 
