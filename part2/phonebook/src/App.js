@@ -63,7 +63,6 @@ const App = () => {
       });
     } else {
       const message = `${newPerson.name} is already added to phonebook, replace the old number with a new one?`;
-      console.log(result);
 
       if (window.confirm(message)) {
         personService
