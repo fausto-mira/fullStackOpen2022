@@ -22,8 +22,8 @@ POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-    "name": "messid10s",
-    "number": "040-1111111"
+    "name": "mes",
+    "number": "040"
 }
 
 ###

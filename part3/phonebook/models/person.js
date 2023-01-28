@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator");
 
 mongoose.set("strictQuery", true);
 
@@ -20,10 +21,11 @@ const personSchema = new mongoose.Schema({
     type: String,
     minLength: 5,
     required: true,
+    unique: true,
   },
   number: {
     type: String,
-    minLength: 5,
+    minLength: 8,
     required: true,
   },
 });
