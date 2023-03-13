@@ -1,4 +1,4 @@
-POST http://localhost:3003/api/blogs
+POST http://localhost:3001/api/blogs
 Content-type: application/json
 
 {
@@ -6,4 +6,27 @@ Content-type: application/json
     "author": "messi",
     "url": "google.com",
     "likes": 2
+}
+
+###
+
+POST http://localhost:3001/api/blogs
+Content-type: application/json
+
+{
+    "title": "ronaldo",
+    "author": "ronaldo",
+    "url": "bing.com",
+    "likes": 1
+}
+
+###
+
+POST http://localhost:3001/api/blogs
+Content-type: application/json
+
+{
+    "title": "riquelme",
+    "author": "riquelme",
+    "url": "bing.com"
 }
