@@ -1,11 +1,23 @@
 const mongoose = require('mongoose')
 const Blog = require('../models/blog')
-const { api, initialBlogs, getBlogLikes, getBlogTitles } = require('../utils/helper')
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
+const { api, initialBlogs, getBlogLikes, getBlogTitles, blogsInDb } = require('../utils/helper')
 
 beforeEach(async () => {
   jest.setTimeout(30000)
+  await User.deleteMany({})
+  const passwordHash = await bcrypt.hash('sekret', 10)
+  const user = new User({ username: 'root', name: 'test', passwordHash })
+  await user.save()
+
+  const users = await api.get('/api/users')
+  const id = users.body[0].id
+  console.log(users.body)
+
   await Blog.deleteMany({})
   for (const blog of initialBlogs) {
+    blog.user = id
     const blogObject = new Blog(blog)
     await blogObject.save()
   }
@@ -33,17 +45,36 @@ describe('when there is initially some blogs saved', () => {
 
   describe('addition of a new blog', () => {
     test('sucessfull with valid data', async () => {
+      const validUser = { username: 'root', password: 'sekret' }
+      const response = await api.post('/api/login').send(validUser).expect(200)
+      const token = response.body
+      const auth = { Authorization: `bearer ${token}` }
+
       const newBlog = { title: 'Narnia', author: 'Wenseslao', url: 'https://apple.com', likes: 5 }
-      await api.post('/api/blogs').send(newBlog).expect(201)
+      await api.post('/api/blogs').set(auth).send(newBlog).expect(201)
 
       const titles = await getBlogTitles()
       expect(titles).toHaveLength(initialBlogs.length + 1)
       expect(titles).toContain('Narnia')
     })
 
+    test('unsucessfull without token', async () => {
+      const newBlog = { title: 'Narnia', author: 'Wenseslao', url: 'https://apple.com', likes: 5 }
+      await api.post('/api/blogs').send(newBlog).expect(401)
+
+      const titles = await getBlogTitles()
+      expect(titles).toHaveLength(initialBlogs.length)
+    })
+
     test('when likes property is absent, sets default 0', async () => {
+      const validUser = { username: 'root', password: 'sekret' }
+      const response = await api.post('/api/login').send(validUser).expect(200)
+      const token = response.body
+      const auth = { Authorization: `bearer ${token}` }
+
       const newBlog = { title: 'Jumanji', author: 'Random', url: 'https://adidas.com' }
-      await api.post('/api/blogs').send(newBlog).expect(201)
+
+      await api.post('/api/blogs').set(auth).send(newBlog).expect(201)
 
       const likes = await getBlogLikes()
       expect(likes[likes.length - 1]).toBe(0)
@@ -51,23 +82,36 @@ describe('when there is initially some blogs saved', () => {
     })
 
     test('fails with status code 400 if data invalid', async () => {
+      const validUser = { username: 'root', password: 'sekret' }
+      const response = await api.post('/api/login').send(validUser).expect(200)
+      const token = response.body
+      const auth = { Authorization: `bearer ${token}` }
+
       const newBlog = { author: 'Random', url: 'https://adidas.com' }
 
-      await api.post('/api/blogs').send(newBlog).expect(400)
+      await api.post('/api/blogs').set(auth).send(newBlog).expect(400)
 
-      const response = await api.get('/api/blogs')
-      expect(response.body).toHaveLength(initialBlogs.length)
+      const res = await blogsInDb()
+      expect(res).toHaveLength(initialBlogs.length)
     })
   })
 
   describe('deletion of a blog', () => {
     test('succeeds with status code 204 if id is valid', async () => {
-      let blogs = await api.get('/api/blogs')
+      const validUser = { username: 'root', password: 'sekret' }
+      const response = await api.post('/api/login').send(validUser).expect(200)
+      const token = response.body
+      const auth = { Authorization: `bearer ${token}` }
 
-      await api.delete(`/api/blogs/${blogs.body[1].id}`).expect(204)
+      // await Blog.deleteMany({})
+      // const newBlog = { title: 'Narnia', author: 'Wenseslao', url: 'https://apple.com', likes: 5 }
+      // await api.post('/api/blogs').set(auth).send(newBlog)
+      const blogs = await blogsInDb()
 
-      blogs = await api.get('/api/blogs')
-      expect(blogs.body).toHaveLength(initialBlogs.length - 1)
+      await api.delete(`/api/blogs/${blogs[1].id}`).set(auth).expect(204)
+
+      const updatedBlogs = await blogsInDb()
+      expect(updatedBlogs).toHaveLength(initialBlogs.length - 1)
     })
   })
   describe('update of a blog', () => {
@@ -78,9 +122,16 @@ describe('when there is initially some blogs saved', () => {
         title: blogs.body[0].title,
         author: blogs.body[0].author,
         url: blogs.body[0].url,
-        likes: 5
+        likes: 5,
+        user: blogs.body[0].user
       }
-      await api.put(`/api/blogs/${idToUpdate}`).send(updatedBlog).expect(200)
+
+      const validUser = { username: 'root', password: 'sekret' }
+      const response = await api.post('/api/login').send(validUser).expect(200)
+      const token = response.body
+      const auth = { Authorization: `bearer ${token}` }
+
+      await api.put(`/api/blogs/${idToUpdate}`).set(auth).send(updatedBlog).expect(200)
     })
     test('try update with invalid data', async () => {
       const blogs = await api.get('/api/blogs')
@@ -91,11 +142,17 @@ describe('when there is initially some blogs saved', () => {
         url: blogs.body[0].url,
         likes: 10
       }
-      await api.put(`/api/blogs/${idToUpdate}`).send(updatedBlog).expect(400)
+
+      const validUser = { username: 'root', password: 'sekret' }
+      const response = await api.post('/api/login').send(validUser).expect(200)
+      const token = response.body
+      const auth = { Authorization: `bearer ${token}` }
+
+      await api.put(`/api/blogs/${idToUpdate}`).set(auth).send(updatedBlog).expect(400)
     })
   })
 })
 
 afterAll(() => {
-  mongoose.connection.close()
+  mongoose.disconnect()
 })
