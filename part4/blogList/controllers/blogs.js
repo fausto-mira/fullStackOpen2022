@@ -15,7 +15,7 @@ blogsRouter.post('/', userExtractor, async (request, response) => {
   const newBlog = request.body
   const user = request.user
 
-  if (newBlog.title === undefined || newBlog.url === undefined) {
+  if (newBlog.title === undefined || newBlog.url === undefined || newBlog.title === '' || newBlog.url === '') {
     return response.status(400).json('no title/url')
   }
 
