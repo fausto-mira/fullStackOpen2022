@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types'
+
 const styles = {
   error: {
     color: 'red',
@@ -23,6 +25,10 @@ const styles = {
 const Notification = ({ message, selectedStyle }) => {
   if (message === null) return null
   return <div style={styles[selectedStyle]}>{message}</div>
+}
+
+Notification.propTypes = {
+  selectedStyle: PropTypes.string.isRequired
 }
 
 export default Notification
