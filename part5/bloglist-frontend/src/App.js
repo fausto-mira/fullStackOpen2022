@@ -10,7 +10,7 @@ import Togglable from './components/Togglable'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [errorMessage, setErrorMessage] = useState('')
-  const [sucessMessage, setSucessMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -51,8 +51,8 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
-      setSucessMessage('user login sucessful')
-      setTimeout(() => setSucessMessage(''), 5000)
+      setSuccessMessage('user login successful')
+      setTimeout(() => setSuccessMessage(''), 5000)
     } catch (exception) {
       setErrorMessage('Wrong username or password')
       setTimeout(() => {
@@ -67,28 +67,57 @@ const App = () => {
     event.preventDefault()
     window.localStorage.clear()
     setUser(null)
-    setSucessMessage('user logout sucessful')
-    setTimeout(() => setSucessMessage(''), 5000)
+    setSuccessMessage('user logout sucessful')
+    setTimeout(() => setSuccessMessage(''), 5000)
   }
 
   const createBlog = async (newBlog) => {
     blogFormRef.current.toggleVisibility()
     try {
       const result = await blogService.create(newBlog)
-      setSucessMessage(`a new blog "${newBlog.title}" by ${newBlog.author} added`)
+      setSuccessMessage(`a new blog "${newBlog.title}" by ${newBlog.author} added`)
       setBlogs(blogs.concat(result))
-      setTimeout(() => setSucessMessage(''), 5000)
+      setTimeout(() => setSuccessMessage(''), 5000)
     } catch (exception) {
       setErrorMessage(`cannot add blog. error: ${exception}`)
       setTimeout(() => setErrorMessage(''), 5000)
     }
   }
 
+  // const sortBlogsByLikes = (blogsArray) => {
+  //   const tempArray = blogsArray.map(blog => blog)
+  //   console.log(tempArray)
+  //   tempArray.sort(function (a, b) {
+  //     if (a.likes > b.likes) { return -1 }
+  //     if (a.likes < b.likes) { return 1 }
+  //     return 0
+  //   })
+  //   console.log(tempArray)
+  //   console.log(blogs)
+  //   return (tempArray)
+
+  //   // setOrderedBlogs(tempArray)
+
+  //   // const temp = blogsArray.map((el, i) => ({ index: i, value: el }))
+  //   // temp.sort(
+  //   //   function (a, b) {
+  //   //     if (a.likes > b.likes) { return -1 }
+  //   //     if (a.likes < b.likes) { return 1 }
+  //   //     return 0
+  //   //   })
+  //   // const result = temp.map((el) => temp[el.index])
+  //   // console.log(result)
+  //   // return (result)
+  //   // setOrderedBlogs(result)
+  // }
+
   const blogForm = () => {
+    const orderedBlogs = [].concat(blogs)
+      .sort((a, b) => a.likes > b.likes ? -1 : 1)
     return (
       <div>
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} validUser={user} message={setSucessMessage} />
+        {orderedBlogs.map(blog =>
+          <Blog key={blog.id} blog={blog} user={user} message={setSuccessMessage} />
         )}
       </div>
     )
@@ -97,8 +126,8 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      {errorMessage ? <Notification message={errorMessage} selectedStyle='error' /> : undefined}
-      {sucessMessage ? <Notification message={sucessMessage} selectedStyle='sucess' /> : undefined}
+      {errorMessage && <Notification message={errorMessage} selectedStyle='error' />}
+      {successMessage && <Notification message={successMessage} selectedStyle='success' />}
 
       {user === null &&
         <LoginForm
@@ -112,7 +141,7 @@ const App = () => {
       {user !== null &&
         <div>
           <p>
-            {user.name} logged-in <button type='submit' onClick={handleLogout}>logout</button>
+            {user.name} logged-in <button type='submit' id='logout-button' onClick={handleLogout}>logout</button>
           </p>
           <Togglable buttonLabel='new blog' ref={blogFormRef}>
             <BlogForm createBlog={createBlog} />

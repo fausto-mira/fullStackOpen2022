@@ -11,7 +11,7 @@ const styles = {
     marginBottom: '10px'
   },
 
-  sucess: {
+  success: {
     color: 'green',
     background: 'lightgrey',
     fontSize: '20px',

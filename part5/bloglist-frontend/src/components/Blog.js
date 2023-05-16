@@ -2,7 +2,7 @@ import { useState } from 'react'
 import blogService from '../services/blogs'
 import PropTypes from 'prop-types'
 
-const Blog = ({ blog, validUser, message }) => {
+const Blog = ({ blog, user, message }) => {
   const [visible, setVisible] = useState(false)
   const [deleted, setDeleted] = useState(false)
   const [likesState, setLikesState] = useState(blog.likes)
@@ -14,8 +14,8 @@ const Blog = ({ blog, validUser, message }) => {
     borderWidth: 1,
     marginBottom: 5
   }
-  const hideWhenVisible = { ...blogStyle, display: visible ? 'none' : '' }
-  const showWhenVisible = { ...blogStyle, display: visible ? '' : 'none' }
+  const hideWhenVisible = { ...blogStyle, display: visible ? 'none' : '', margin: '0.5em' }
+  const showWhenVisible = { ...blogStyle, display: visible ? '' : 'none', margin: '0.5em' }
   const hideDeletedBlog = { display: deleted ? 'none' : '' }
 
   const toggleVisibility = () => {
@@ -26,17 +26,22 @@ const Blog = ({ blog, validUser, message }) => {
     setDeleted(!deleted)
   }
 
+  const validUser = () => {
+    if (user === null) return false
+    if (blog.user === null) return false
+    return (user.id === blog.user.id || user.username === blog.user.username)
+  }
+
   const updateLikes = async () => {
     const updatedBlog = {
-      user: blog.user._id,
+      user: blog.user,
       likes: likesState + 1,
       title: blog.title,
       author: blog.author,
       url: blog.url
     }
     try {
-      const response = await blogService.update(blog.id, updatedBlog)
-      console.log(response)
+      await blogService.update(blog.id, updatedBlog)
       setLikesState(likesState + 1)
     } catch (exception) { console.log(exception) }
   }
@@ -53,11 +58,11 @@ const Blog = ({ blog, validUser, message }) => {
   }
 
   return (
-    <div style={hideDeletedBlog}>
+    <div style={hideDeletedBlog} className='blog'>
 
       <div style={hideWhenVisible}>
         "{blog.title}" by {blog.author}
-        <button onClick={toggleVisibility}>view</button>
+        <button id='view-button' onClick={toggleVisibility}>view</button>
       </div>
 
       <div style={showWhenVisible}>
@@ -65,16 +70,17 @@ const Blog = ({ blog, validUser, message }) => {
         <div>Author: {blog.author}</div>
         <div>URL: {blog.url}</div>
         <div>likes: {likesState}
-          {validUser && <button onClick={updateLikes}>like</button>}
+          {user && <button id='like-button' onClick={updateLikes}>like</button>}
         </div>
-        {validUser && <button onClick={deleteBlog}>delete</button>}
+        {validUser() && <button id='delete-button' onClick={deleteBlog}>delete</button>}
       </div>
     </div>
   )
 }
 
 Blog.propTypes = {
-  blog: PropTypes.object.isRequired
+  blog: PropTypes.object.isRequired,
+  message: PropTypes.func.isRequired
 }
 
 export default Blog
