@@ -1,4 +1,4 @@
-POST http://localhost:3001/api/blogs
+POST http://localhost:3003/api/blogs
 Content-type: application/json
 
 {
@@ -23,7 +23,7 @@ Content-type: application/json
 
 ###
 
-POST http://localhost:3001/api/blogs
+POST http://localhost:3003/api/blogs
 Content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImZhdXN0byIsImlkIjoiNjQxNzVjNDU0NjRiODBkNjZlMmJiZTNiIiwiaWF0IjoxNjc5MjU2Nzc1fQ.0aS8pcYYaVwzaLf7ZZvNsK5Bpb_7Qw8yH0I-jVCgwZw 
 

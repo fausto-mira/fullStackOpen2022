@@ -26,7 +26,8 @@ blogsRouter.post('/', userExtractor, async (request, response) => {
     author: newBlog.author,
     url: newBlog.url,
     likes: newBlog.likes || 0,
-    user: userPosting._id
+    user: userPosting._id,
+    comments: newBlog.comments || []
   })
 
   const savedBlog = await blog.save()
@@ -60,6 +61,22 @@ blogsRouter.put('/:id', userExtractor, async (request, response) => {
     likes: request.body.likes
   }
   const result = await Blog.findByIdAndUpdate(request.params.id, updatedBlog, { new: true })
+  if (result) { response.status(200).json(result) } else response.status(400)
+})
+
+blogsRouter.post('/:id/comments', userExtractor, async (request, response) => {
+  const comment = request.body.comment
+  const id = request.params.id
+
+  if (comment.length < 5) return response.status(400).json('comment length must be 5 or more')
+
+  const blog = await Blog.findById(id)
+
+  const commentedBlog = {
+    comments: blog.comments.concat(comment)
+  }
+
+  const result = await Blog.findByIdAndUpdate(id, commentedBlog, { new: true })
   if (result) { response.status(200).json(result) } else response.status(400)
 })
 

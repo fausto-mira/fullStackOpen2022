@@ -61,7 +61,7 @@ const App = () => {
         <Route path='/anecdotes/:id' element={<Anecdote anecdote={anecdote} />} />
         <Route path='/about' element={<About />} />
         <Route path='/create' element={<AnecdoteForm addNew={addNew} setNotification={setNotification} />} />
-        <Route path='/' element={<AnecdoteList anecdotes={anecdotes} />} />f
+        <Route path='/' element={<AnecdoteList anecdotes={anecdotes} />} />
       </Routes>
       <Footer />
     </div>
