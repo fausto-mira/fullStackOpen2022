@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useQuery, useLazyQuery } from '@apollo/client'
-import { ALL_BOOKS, BOOKS_BY_GENRE } from '../queries'
+import { ALL_BOOKS, BOOKS_BY_GENRE } from '../graphql/queries'
 import Select from 'react-select'
 
-const Books = (props) => {
+const Books = () => {
   const [genres, setGenres] = useState([])
   const [getBooks] = useLazyQuery(ALL_BOOKS)
   const { data: books, loading, refetch } = useQuery(BOOKS_BY_GENRE)

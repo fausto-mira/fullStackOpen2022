@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client'
-import { ALL_BOOKS, USER_FAVORITE_GENRE } from '../queries'
+import { ALL_BOOKS, USER_FAVORITE_GENRE } from '../graphql/queries'
 import { Navigate } from 'react-router-dom'
 
 const Recomemended = () => {

@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client'
 import { useState } from 'react'
-import { ALL_AUTHORS, ALL_BOOKS, CREATE_BOOK } from '../queries'
+import { CREATE_BOOK } from '../graphql/mutation'
 import { useNavigate } from 'react-router-dom'
 
 const NewBook = ({ setMessage }) => {
@@ -12,7 +12,6 @@ const NewBook = ({ setMessage }) => {
   const navigate = useNavigate()
 
   const [createBook] = useMutation(CREATE_BOOK, {
-    refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
     onError: (error) => {
       setMessage(error.message)
     }

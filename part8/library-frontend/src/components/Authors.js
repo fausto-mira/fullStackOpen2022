@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
-import { ALL_AUTHORS, UPDATE_BIRTHYEAR } from '../queries'
+import { ALL_AUTHORS } from '../graphql/queries'
+import { UPDATE_BIRTHYEAR } from '../graphql/mutation'
 import Select from 'react-select'
 
 const Authors = ({ setMessage, user }) => {
